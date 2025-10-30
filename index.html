@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BehaviorFlow Analyzer</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --background: #ecf0f1;
+            --text: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--background) 0%, #dfe6e9 100%);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .analysis-result {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .personality-traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .trait {
+            background: var(--secondary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .trait.confident {
+            background: var(--success);
+        }
+
+        .trait.cautious {
+            background: var(--warning);
+        }
+
+        .trait.impulsive {
+            background: var(--accent);
+        }
+
+        .chart-container {
+            height: 200px;
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        .activity-timeline {
+            margin-top: 1rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .timeline-time {
+            font-weight: 600;
+            min-width: 80px;
+            color: var(--secondary);
+        }
+
+        .timeline-event {
+            flex: 1;
+            margin-left: 1rem;
+        }
+
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
+            gap: 2px;
+            margin-top: 1rem;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 2px;
+            background: #ecf0f1;
+            transition: background-color 0.3s ease;
+        }
+
+        .heatmap-cell.active {
+            background: var(--secondary);
+        }
+
+        .heatmap-cell.intense {
+            background: var(--accent);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #ecf0f1;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--secondary);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .insight-section {
+            margin-top: 2rem;
+        }
+
+        .insight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .insight h3 {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .data-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .data-point {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .data-label {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .data-value {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BehaviorFlow Analyzer</h1>
+            <p>Анализ цифрового поведения и паттернов взаимодействия в реальном времени</p>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric">
+                <div class="metric-value" id="mouseSpeed">0</div>
+                <div class="metric-label">Скорость мыши</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="clickCount">0</div>
+                <div class="metric-label">Клики</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="scrollDistance">0</div>
+                <div class="metric-label">Прокрутка (px)</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="sessionTime">0</div>
+                <div class="metric-label">Время (сек)</div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h2>📊 Активность мыши</h2>
+                <div class="chart-container" id="mouseChart">
+                    <canvas id="mouseMovementChart"></canvas>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="mouseActivityProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Тепловая карта кликов</h2>
+                <div class="heatmap" id="clickHeatmap">
+                    <!-- Heatmap will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div class="analysis-result">
+            <h2>🧠 Анализ поведения</h2>
+            <div id="behaviorAnalysis">
+                <p>Собираем данные о вашем цифровом поведении...</p>
+            </div>
+            
+            <div class="personality-traits" id="personalityTraits">
+                <!-- Traits will be added by JavaScript -->
+            </div>
+
+            <div class="insight-section">
+                <div class="insight">
+                    <h3>💡 Инсайт</h3>
+                    <p id="behaviorInsight">Анализируем ваши паттерны взаимодействия...</p>
+                </div>
+            </div>
+
+            <div class="data-points">
+                <div class="data-point">
+                    <span class="data-label">Средняя скорость перемещения:</span>
+                    <span class="data-value" id="avgSpeed">0 px/сек</span>
+                </div>
+                <div class="data-point">
+                    <span class="data-label">Активность кликов:</span>
+                    <span class="data-value" id="clickActivity">0/мин</span>
+                </div>
+                <div class="data-point">
+                    <span class="data-label">Паттерн скроллинга:</span>
+                    <span class="data-value" id="scrollPattern">Анализ...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📈 Временная шкала активности</h2>
+            <div class="activity-timeline" id="activityTimeline">
+                <!-- Timeline items will be added by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class BehaviorAnalyzer {
+            constructor() {
+                this.mouseData = [];
+                this.clickData = [];
+                this.scrollData = [];
+                this.sessionStart = Date.now();
+                this.movementPoints = [];
+                this.lastMousePosition = { x: 0, y: 0 };
+                this.lastMoveTime = Date.now();
+                
+                this.initializeMetrics();
+                this.setupEventListeners();
+                this.startAnalysis();
+            }
+
+            initializeMetrics() {
+                this.updateMetric('mouseSpeed', '0');
+                this.updateMetric('clickCount', '0');
+                this.updateMetric('scrollDistance', '0');
+                this.updateMetric('sessionTime', '0');
+            }
+
+            setupEventListeners() {
+                document.addEventListener('mousemove', this.handleMouseMove.bind(this));
+                document.addEventListener('click', this.handleClick.bind(this));
+                document.addEventListener('scroll', this.handleScroll.bind(this));
+                document.addEventListener('keydown', this.handleKeyPress.bind(this));
+            }
+
+            handleMouseMove(event) {
+                const currentTime = Date.now();
+                const timeDiff = currentTime - this.lastMoveTime;
+                
+                if (timeDiff > 50) {
+                    const distance = this.calculateDistance(
+                        this.lastMousePosition.x, this.lastMousePosition.y,
+                        event.clientX, event.clientY
+                    );
+                    
+                    const speed = distance / (timeDiff / 1000);
+                    this.mouseData.push({
+                        x: event.clientX,
+                        y: event.clientY,
+                        speed: speed,
+                        timestamp: currentTime
+                    });
+
+                    this.updateMetric('mouseSpeed', Math.round(speed));
+                    this.lastMousePosition = { x: event.clientX, y: event.clientY };
+                    this.lastMoveTime = currentTime;
+
+                    this.movementPoints.push({
+                        x: event.clientX / window.innerWidth,
+                        y: event.clientY / window.innerHeight,
+                        time: currentTime
+                    });
+                }
+            }
+
+            handleClick(event) {
+                this.clickData.push({
+                    x: event.clientX,
+                    y: event.clientY,
+                    timestamp: Date.now(),
+                    pressure: event.pressure || 0.5
+                });
+
+                const clickCount = this.clickData.length;
+                this.updateMetric('clickCount', clickCount.toString());
+                this.updateClickHeatmap(event.clientX, event.clientY);
+                this.addTimelineEvent('click', `Клик в позиции (${event.clientX}, ${event.clientY})`);
+            }
+
+            handleScroll() {
+                const scrollY = window.scrollY;
+                this.scrollData.push({
+                    position: scrollY,
+                    timestamp: Date.now(),
+                    velocity: this.calculateScrollVelocity()
+                });
+
+                this.updateMetric('scrollDistance', Math.round(scrollY).toString());
+            }
+
+            handleKeyPress(event) {
+                this.addTimelineEvent('keypress', `Нажата клавиша: ${event.key}`);
+            }
+
+            calculateDistance(x1, y1, x2, y2) {
+                return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            }
+
+            calculateScrollVelocity() {
+                if (this.scrollData.length < 2) return 0;
+                const last = this.scrollData[this.scrollData.length - 1];
+                const prev = this.scrollData[this.scrollData.length - 2];
+                return Math.abs(last.position - prev.position) / ((last.timestamp - prev.timestamp) / 1000);
+            }
+
+            updateMetric(elementId, value) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = value;
+                }
+            }
+
+            updateClickHeatmap(x, y) {
+                const heatmap = document.getElementById('clickHeatmap');
+                const cell = document.createElement('div');
+                cell.className = 'heatmap-cell active';
+                
+                const intensity = Math.min(this.clickData.length / 10, 1);
+                if (intensity > 0.7) {
+                    cell.classList.add('intense');
+                }
+                
+                heatmap.appendChild(cell);
+                
+                if (heatmap.children.length > 50) {
+                    heatmap.removeChild(heatmap.firstChild);
+                }
+            }
+
+            addTimelineEvent(type, description) {
+                const timeline = document.getElementById('activityTimeline');
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                
+                const time = new Date().toLocaleTimeString();
+                const icon = this.getEventIcon(type);
+                
+                item.innerHTML = `
+                    <span class="timeline-time">${time}</span>
+                    <span class="timeline-event">${icon} ${description}</span>
+                `;
+                
+                timeline.appendChild(item);
+                timeline.scrollTop = timeline.scrollHeight;
+            }
+
+            getEventIcon(type) {
+                const icons = {
+                    click: '🖱️',
+                    scroll: '📜',
+                    keypress: '⌨️',
+                    move: '🎯'
+                };
+                return icons[type] || '🔔';
+            }
+
+            analyzeBehaviorPatterns() {
+                const avgSpeed = this.mouseData.length > 0 ? 
+                    this.mouseData.reduce((sum, point) => sum + point.speed, 0) / this.mouseData.length : 0;
+                
+                const clickFrequency = this.clickData.length / ((Date.now() - this.sessionStart) / 60000);
+                const scrollIntensity = this.scrollData.length > 0 ? 
+                    Math.max(...this.scrollData.map(s => s.velocity)) : 0;
+
+                return {
+                    avgSpeed,
+                    clickFrequency,
+                    scrollIntensity,
+                    movementConsistency: this.calculateMovementConsistency(),
+                    decisionSpeed: this.calculateDecisionSpeed()
+                };
+            }
+
+            calculateMovementConsistency() {
+                if (this.movementPoints.length < 10) return 0.5;
+                
+                const speeds = [];
+                for (let i = 1; i < this.movementPoints.length; i++) {
+                    const dist = this.calculateDistance(
+                        this.movementPoints[i-1].x,
+                        this.movementPoints[i-1].y,
+                        this.movementPoints[i].x,
+                        this.movementPoints[i].y
+                    );
+                    const timeDiff = this.movementPoints[i].time - this.movementPoints[i-1].time;
+                    speeds.push(dist / (timeDiff / 1000));
+                }
+                
+                const avg = speeds.reduce((a, b) => a + b) / speeds.length;
+                const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
+                return Math.max(0, 1 - (variance / 10000));
+            }
+
+            calculateDecisionSpeed() {
+                if (this.clickData.length < 2) return 0.5;
+                const times = this.clickData.map(c => c.timestamp).sort((a, b) => a - b);
+                const intervals = [];
+                for (let i = 1; i < times.length; i++) {
+                    intervals.push(times[i] - times[i-1]);
+                }
+                const avgInterval = intervals.reduce((a, b) => a + b) / intervals.length;
+                return Math.min(1, 1000 / avgInterval);
+            }
+
+            generatePersonalityProfile(patterns) {
+                const traits = [];
+                
+                if (patterns.avgSpeed > 500) {
+                    traits.push({ name: 'Решительный', class: 'confident' });
+                } else if (patterns.avgSpeed < 200) {
+                    traits.push({ name: 'Внимательный', class: 'cautious' });
+                }
+
+                if (patterns.clickFrequency > 5) {
+                    traits.push({ name: 'Активный', class: 'impulsive' });
+                }
+
+                if (patterns.movementConsistency > 0.7) {
+                    traits.push({ name: 'Системный', class: 'confident' });
+                }
+
+                if (patterns.decisionSpeed > 0.8) {
+                    traits.push({ name: 'Быстрореагирующий', class: 'impulsive' });
+                }
+
+                if (patterns.scrollIntensity > 100) {
+                    traits.push({ name: 'Энергичный', class: 'impulsive' });
+                }
+
+                return traits.length > 0 ? traits : [{ name: 'Сбалансированный', class: 'confident' }];
+            }
+
+            generateInsight(patterns, traits) {
+                if (patterns.avgSpeed > 600 && patterns.clickFrequency > 8) {
+                    return "Вы демонстрируете энергичный и целеустремленный стиль взаимодействия";
+                } else if (patterns.avgSpeed < 300 && patterns.movementConsistency > 0.8) {
+                    return "Ваш подход отличается методичностью и вниманием к деталям";
+                } else if (patterns.decisionSpeed > 0.9) {
+                    return "Вы быстро принимаете решения и действуете интуитивно";
+                } else {
+                    return "Вы проявляете адаптивный и сбалансированный стиль поведения";
+                }
+            }
+
+            updateAnalysis() {
+                const patterns = this.analyzeBehaviorPatterns();
+                const traits = this.generatePersonalityProfile(patterns);
+                const insight = this.generateInsight(patterns, traits);
+
+                // Update progress bars
+                const mouseProgress = document.getElementById('mouseActivityProgress');
+                mouseProgress.style.width = `${Math.min(patterns.avgSpeed / 10, 100)}%`;
+
+                // Update data points
+                this.updateMetric('avgSpeed', `${Math.round(patterns.avgSpeed)} px/сек`);
+                this.updateMetric('clickActivity', `${Math.round(patterns.clickFrequency * 10) / 10}/мин`);
+                this.updateMetric('scrollPattern', patterns.scrollIntensity > 100 ? 'Энергичный' : 'Плавный');
+
+                // Update personality traits
+                const traitsContainer = document.getElementById('personalityTraits');
+                traitsContainer.innerHTML = '';
+                traits.forEach(trait => {
+                    const traitElement = document.createElement('div');
+                    traitElement.className = `trait ${trait.class}`;
+                    traitElement.textContent = trait.name;
+                    traitsContainer.appendChild(traitElement);
+                });
+
+                // Update insight
+                document.getElementById('behaviorInsight').textContent = insight;
+            }
+
+            startAnalysis() {
+                // Update session time
+                setInterval(() => {
+                    const sessionTime = Math.round((Date.now() - this.sessionStart) / 1000);
+                    this.updateMetric('sessionTime', sessionTime.toString());
+                }, 1000);
+
+                // Update analysis every 3 seconds
+                setInterval(() => {
+                    this.updateAnalysis();
+                }, 3000);
+            }
+        }
+
+        // Initialize the analyzer when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new BehaviorAnalyzer();
+        });
+    </script>
+</body>
+</html>
