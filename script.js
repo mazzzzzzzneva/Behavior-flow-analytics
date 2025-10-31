@@ -271,3 +271,15 @@ class BehaviorAnalyzer {
         }, 3000);
     }
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM загружен, запускаем анализатор...');
+    
+    try {
+        new BehaviorAnalyzer();
+        console.log('Анализатор запущен успешно!');
+    } catch (error) {
+        console.error('Ошибка при запуске анализатора:', error);
+    }
+});

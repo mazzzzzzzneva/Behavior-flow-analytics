@@ -1,12 +1,12 @@
 :root {
-    --primary: #2c3e50;
-    --secondary: #3498db;
-    --accent: #e74c3c;
+    --primary: #3c3c3c;
+    --secondary: #5534db;
+    --accent: #e01c6745;
     --background: #ecf0f1;
     --text: #2c3e50;
-    --success: #27ae60;
+    --success: #1fbd6066;
     --warning: #f39c12;
-    --card-bg: #ffffff;
+    --card-bg: #ffffffa7;
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -18,7 +18,7 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: linear-gradient(135deg, var(--background) 0%, #dfe6e9 100%);
+    background: linear-gradient(135deg, #a9b5ed 0%, #ba82f2 100%);
     color: var(--text);
     min-height: 100vh;
     line-height: 1.6;
@@ -44,7 +44,7 @@ body {
 
 .header p {
     font-size: 1.1rem;
-    color: #7f8c8d;
+    color: #ffffff;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -130,7 +130,7 @@ body {
 
 .trait {
     background: var(--secondary);
-    color: white;
+    color: rgba(0, 0, 0, 0.488);
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 0.9rem;
@@ -219,7 +219,7 @@ body {
 }
 
 .insight {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7c92f196 0%, #865bb274 100%);
     color: white;
     padding: 1.5rem;
     border-radius: 12px;
@@ -245,7 +245,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem;
-    background: #f8f9fa;
+    background: #f8f9fa63;
     border-radius: 6px;
 }
 
